@@ -24,6 +24,7 @@ def find_font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont | ImageFo
             [
                 "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
                 "/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf",
+                "C:/Windows/Fonts/malgunbd.ttf",
             ]
         )
     else:
@@ -31,6 +32,7 @@ def find_font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont | ImageFo
             [
                 "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
                 "/usr/share/fonts/truetype/nanum/NanumGothic.ttf",
+                "C:/Windows/Fonts/malgun.ttf",
             ]
         )
 
