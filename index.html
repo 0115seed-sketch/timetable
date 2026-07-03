@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>천안업성고 2-9 시간표</title>
+
+  <meta property="og:title" content="천안업성고 2-9 오늘의 시간표" />
+  <meta property="og:description" content="오늘 수업을 빠르게 확인하고 공유하세요." />
+  <meta property="og:image" content="./assets/og/today_timetable.png" />
+  <meta property="og:type" content="website" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="./assets/css/styles.css" />
+  <script defer src="./assets/js/config.js"></script>
+  <script defer src="./assets/js/app.js"></script>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="card">
+      <header class="hero">
+        <p class="hero-kicker">CHEONAN UPSUNG · G2-C9</p>
+        <h1 class="hero-title">2학년 9반 시간표</h1>
+        <p class="hero-subtitle">하루 단위와 주간 단위를 한 번에 확인하세요.</p>
+
+        <div class="hero-controls">
+          <label class="date-wrap" for="datePicker">
+            <span>날짜 선택</span>
+            <input id="datePicker" type="date" />
+          </label>
+
+          <div class="toggle" role="tablist" aria-label="뷰 전환">
+            <button id="btnDaily" role="tab" aria-selected="true" class="toggle-btn is-active" type="button">일별</button>
+            <button id="btnWeekly" role="tab" aria-selected="false" class="toggle-btn" type="button">주간</button>
+          </div>
+        </div>
+      </header>
+
+      <section class="content" aria-live="polite">
+        <div id="loading" class="state state-loading hidden">
+          <div class="loader" aria-hidden="true"></div>
+          <p>시간표를 불러오는 중입니다...</p>
+        </div>
+
+        <div id="errorMessage" class="state state-error hidden"></div>
+        <div id="emptyMessage" class="state state-empty hidden"></div>
+
+        <ul id="timetableList" class="daily-list hidden"></ul>
+
+        <div id="weeklyContainer" class="weekly-wrap hidden">
+          <table class="weekly-table">
+            <thead>
+              <tr>
+                <th>교시</th>
+                <th id="wMon">월</th>
+                <th id="wTue">화</th>
+                <th id="wWed">수</th>
+                <th id="wThu">목</th>
+                <th id="wFri">금</th>
+              </tr>
+            </thead>
+            <tbody id="weeklyTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,50 @@
+name: Update OG Image
+
+on:
+  schedule:
+    - cron: "0 20 * * *"
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: write
+
+jobs:
+  build-og:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Generate OG image
+        env:
+          NICE_API_KEY: ${{ secrets.NICE_API_KEY }}
+          NEIS_OFFICE_CODE: N10
+          NEIS_SCHOOL_CODE: "8140253"
+          NEIS_GRADE: "2"
+          NEIS_CLASS: "9"
+          SCHOOL_LABEL: "천안업성고 2학년 9반"
+        run: python scripts/generate_og.py
+
+      - name: Commit and push changes
+        run: |
+          if [ -z "$(git status --porcelain -- assets/og/today_timetable.png)" ]; then
+            echo "No changes in OG image"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/og/today_timetable.png
+          git commit -m "chore: update daily OG image"
+          git push
