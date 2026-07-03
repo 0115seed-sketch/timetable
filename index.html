@@ -1,75 +1,228 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>천안업성고 2-9 시간표</title>
 
-  <meta property="og:title" content="천안업성고 2-9 오늘의 시간표" />
-  <meta property="og:description" content="오늘 수업을 빠르게 확인하고 공유하세요." />
-  <meta property="og:image" content="https://0115seed-sketch.github.io/timetable/assets/og/today_timetable.png" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:type" content="website" />
+  <meta property="og:title" content="천안업성고 2-9 오늘의 시간표">
+  <meta property="og:description" content="우리 반 오늘의 시간표를 확인하세요!">
+  <meta property="og:image" content="https://0115seed-sketch.github.io/timetable/assets/og/today_timetable.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:type" content="website">
 
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
-
-  <link rel="stylesheet" href="./assets/css/styles.css" />
-  <script defer src="./assets/js/config.js"></script>
-  <script defer src="./assets/js/app.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', 'Pretendard', sans-serif; background-color: #f3f4f6; }
+    .loader { border: 4px solid #fef08a; border-top: 4px solid #eab308; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
 </head>
-<body>
-  <main class="page-shell">
-    <section class="card">
-      <header class="hero">
-        <p class="hero-kicker">CHEONAN UPSUNG · G2-C9</p>
-        <h1 class="hero-title">2학년 9반 시간표</h1>
-        <p class="hero-subtitle">하루 단위와 주간 단위를 한 번에 확인하세요.</p>
+<body class="flex items-center justify-center min-h-screen p-4">
 
-        <div class="hero-controls">
-          <label class="date-wrap" for="datePicker">
-            <span>날짜 선택</span>
-            <input id="datePicker" type="date" />
-          </label>
-
-          <div class="toggle" role="tablist" aria-label="뷰 전환">
-            <button id="btnDaily" role="tab" aria-selected="true" class="toggle-btn is-active" type="button">일별</button>
-            <button id="btnWeekly" role="tab" aria-selected="false" class="toggle-btn" type="button">주간</button>
-          </div>
+  <div class="bg-white rounded-2xl shadow-lg w-full max-w-2xl overflow-hidden transition-all duration-300">
+    <div class="bg-yellow-400 text-gray-900 p-6 text-center">
+      <h1 class="text-2xl font-bold tracking-tight">천안업성고 2-9</h1>
+      <div class="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <input type="date" id="datePicker" class="bg-yellow-50 text-gray-800 text-sm font-bold px-3 py-2 rounded-lg border border-yellow-500 focus:ring-2 focus:ring-yellow-600 outline-none cursor-pointer shadow-sm">
+        <div class="flex bg-yellow-500 rounded-lg p-1 shadow-inner">
+          <button id="btnDaily" class="px-4 py-1.5 text-sm font-bold rounded-md transition-colors bg-white text-yellow-700 shadow">일별</button>
+          <button id="btnWeekly" class="px-4 py-1.5 text-sm font-bold rounded-md transition-colors text-yellow-900 hover:bg-yellow-300">주간</button>
         </div>
-      </header>
+      </div>
+    </div>
 
-      <section class="content" aria-live="polite">
-        <div id="loading" class="state state-loading hidden">
-          <div class="loader" aria-hidden="true"></div>
-          <p>시간표를 불러오는 중입니다...</p>
-        </div>
+    <div class="p-6">
+      <div id="loading" class="flex flex-col items-center justify-center py-8">
+        <div class="loader mb-4"></div>
+        <p class="text-gray-500 text-sm">시간표를 불러오고 있습니다...</p>
+      </div>
+      <div id="errorMessage" class="hidden text-center py-8 text-red-500 font-medium leading-relaxed"></div>
+      <ul id="timetableList" class="hidden flex flex-col space-y-3 max-w-md mx-auto"></ul>
+      <div id="weeklyContainer" class="hidden overflow-x-auto pb-2">
+        <table class="w-full border-collapse text-center text-sm sm:text-base min-w-[500px]">
+          <thead>
+            <tr class="bg-yellow-100 text-yellow-900">
+              <th class="border-b-2 border-yellow-300 py-3 font-bold w-12 rounded-tl-lg">교시</th>
+              <th class="border-b-2 border-yellow-300 py-3 font-semibold">월</th>
+              <th class="border-b-2 border-yellow-300 py-3 font-semibold">화</th>
+              <th class="border-b-2 border-yellow-300 py-3 font-semibold">수</th>
+              <th class="border-b-2 border-yellow-300 py-3 font-semibold">목</th>
+              <th class="border-b-2 border-yellow-300 py-3 font-semibold rounded-tr-lg">금</th>
+            </tr>
+          </thead>
+          <tbody id="weeklyTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-        <div id="errorMessage" class="state state-error hidden"></div>
-        <div id="emptyMessage" class="state state-empty hidden"></div>
+  <script>
+    const API_KEY = "93d7e6ed85024576b50ed21a8ac017fc";
 
-        <ul id="timetableList" class="daily-list hidden"></ul>
+    const ATPT_OFCDC_SC_CODE = "N10";
+    const SD_SCHUL_CODE = "8140253";
+    const GRADE = "2";
+    const CLASS_NM = "9";
 
-        <div id="weeklyContainer" class="weekly-wrap hidden">
-          <table class="weekly-table">
-            <thead>
-              <tr>
-                <th>교시</th>
-                <th id="wMon">월</th>
-                <th id="wTue">화</th>
-                <th id="wWed">수</th>
-                <th id="wThu">목</th>
-                <th id="wFri">금</th>
-              </tr>
-            </thead>
-            <tbody id="weeklyTableBody"></tbody>
-          </table>
-        </div>
-      </section>
-    </section>
-  </main>
+    const datePicker = document.getElementById('datePicker');
+    const btnDaily = document.getElementById('btnDaily');
+    const btnWeekly = document.getElementById('btnWeekly');
+    const loadingDiv = document.getElementById('loading');
+    const errorMessageDiv = document.getElementById('errorMessage');
+    const timetableListDiv = document.getElementById('timetableList');
+    const weeklyContainer = document.getElementById('weeklyContainer');
+    const weeklyTableBody = document.getElementById('weeklyTableBody');
+
+    let isWeeklyMode = false;
+
+    function initApp() {
+      const today = new Date();
+      const localISOTime = (new Date(today.getTime() - today.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+      datePicker.value = localISOTime;
+
+      datePicker.addEventListener('change', fetchTimetable);
+
+      btnDaily.addEventListener('click', () => {
+        if (!isWeeklyMode) return;
+        isWeeklyMode = false;
+        updateTabUI();
+        fetchTimetable();
+      });
+
+      btnWeekly.addEventListener('click', () => {
+        if (isWeeklyMode) return;
+        isWeeklyMode = true;
+        updateTabUI();
+        fetchTimetable();
+      });
+
+      fetchTimetable();
+    }
+
+    function updateTabUI() {
+      if (isWeeklyMode) {
+        btnWeekly.className = "px-4 py-1.5 text-sm font-bold rounded-md transition-colors bg-white text-yellow-700 shadow";
+        btnDaily.className = "px-4 py-1.5 text-sm font-bold rounded-md transition-colors text-yellow-900 hover:bg-yellow-300";
+      } else {
+        btnDaily.className = "px-4 py-1.5 text-sm font-bold rounded-md transition-colors bg-white text-yellow-700 shadow";
+        btnWeekly.className = "px-4 py-1.5 text-sm font-bold rounded-md transition-colors text-yellow-900 hover:bg-yellow-300";
+      }
+    }
+
+    function getWeekRange(dateString) {
+      const targetDate = new Date(dateString);
+      const dayOfWeek = targetDate.getDay();
+      const diffToMonday = targetDate.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+      const monday = new Date(targetDate.setDate(diffToMonday));
+      const friday = new Date(monday.getTime() + (4 * 24 * 60 * 60 * 1000));
+      const formatDate = (d) => {
+        let month = '' + (d.getMonth() + 1);
+        let day = '' + d.getDate();
+        const year = d.getFullYear();
+        if (month.length < 2) month = '0' + month;
+        if (day.length < 2) day = '0' + day;
+        return [year, month, day].join('');
+      };
+      return { start: formatDate(monday), end: formatDate(friday) };
+    }
+
+    async function fetchTimetable() {
+      loadingDiv.classList.remove('hidden');
+      timetableListDiv.classList.add('hidden');
+      weeklyContainer.classList.add('hidden');
+      errorMessageDiv.classList.add('hidden');
+
+      if (!API_KEY) {
+        showError("API 키가 비어 있습니다.");
+        return;
+      }
+
+      const selectedDate = datePicker.value;
+      let url = `https://open.neis.go.kr/hub/hisTimetable?KEY=${API_KEY}&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE=${ATPT_OFCDC_SC_CODE}&SD_SCHUL_CODE=${SD_SCHUL_CODE}&GRADE=${GRADE}&CLASS_NM=${CLASS_NM}`;
+
+      if (isWeeklyMode) {
+        const { start, end } = getWeekRange(selectedDate);
+        url += `&TI_FROM_YMD=${start}&TI_TO_YMD=${end}`;
+      } else {
+        const targetDate = selectedDate.replace(/-/g, '');
+        url += `&ALL_TI_YMD=${targetDate}`;
+      }
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.hisTimetable) {
+          const rows = data.hisTimetable[1].row;
+          if (isWeeklyMode) {
+            renderWeeklyTimetable(rows);
+          } else {
+            renderDailyTimetable(rows);
+          }
+        }
+        else if (data.RESULT && data.RESULT.CODE === 'INFO-200') {
+          showError(isWeeklyMode
+            ? "해당 주간에는 등록된 수업 일정이 없습니다."
+            : "해당 날짜는 수업 일정이 없습니다.<br><span class='text-xs text-gray-500 mt-2 block'>(주말/공휴일/시험/방학 등)</span>");
+        }
+        else {
+          const errorMsg = data.RESULT ? data.RESULT.MESSAGE : "데이터를 불러올 수 없습니다.";
+          showError(`오류: ${errorMsg}`);
+        }
+      } catch (error) {
+        showError("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+        console.error(error);
+      }
+    }
+
+    function renderDailyTimetable(rows) {
+      loadingDiv.classList.add('hidden');
+      timetableListDiv.classList.remove('hidden');
+      rows.sort((a, b) => parseInt(a.PERIO) - parseInt(b.PERIO));
+      timetableListDiv.innerHTML = '';
+      rows.forEach(row => {
+        const li = document.createElement('li');
+        li.className = "flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-yellow-200 hover:bg-yellow-50 transition-colors shadow-sm";
+        li.innerHTML = `<span class="text-yellow-600 font-bold text-lg w-12">${row.PERIO}교시</span><span class="flex-1 text-gray-800 font-semibold text-lg text-right truncate pl-4">${row.ITRT_CNTNT.replace(/\*/g, '')}</span>`;
+        timetableListDiv.appendChild(li);
+      });
+    }
+
+    function renderWeeklyTimetable(rows) {
+      loadingDiv.classList.add('hidden');
+      weeklyContainer.classList.remove('hidden');
+      const maxPeriod = Math.max(...rows.map(r => parseInt(r.PERIO)));
+      const numPeriods = maxPeriod > 0 ? maxPeriod : 7;
+      const schedule = Array.from({ length: numPeriods }, () => Array(5).fill('-'));
+      rows.forEach(row => {
+        const perioIdx = parseInt(row.PERIO) - 1;
+        const rowDate = new Date(row.ALL_TI_YMD.substring(0, 4), parseInt(row.ALL_TI_YMD.substring(4, 6)) - 1, row.ALL_TI_YMD.substring(6, 8));
+        const dayIdx = rowDate.getDay() - 1;
+        if (dayIdx >= 0 && dayIdx <= 4 && perioIdx >= 0 && perioIdx < numPeriods) {
+          schedule[perioIdx][dayIdx] = row.ITRT_CNTNT.replace(/\*/g, '');
+        }
+      });
+      let html = '';
+      schedule.forEach((weekRow, pIdx) => {
+        html += `<tr class="border-b border-yellow-100 hover:bg-yellow-50 transition-colors"><td class="py-3 font-bold text-yellow-700 bg-yellow-50/50">${pIdx + 1}</td>`;
+        weekRow.forEach(subject => html += `<td class="py-3 ${subject !== '-' ? 'text-gray-800 font-medium' : 'text-gray-400 font-light'}">${subject}</td>`);
+        html += `</tr>`;
+      });
+      weeklyTableBody.innerHTML = html;
+    }
+
+    function showError(message) {
+      loadingDiv.classList.add('hidden');
+      timetableListDiv.classList.add('hidden');
+      weeklyContainer.classList.add('hidden');
+      errorMessageDiv.classList.remove('hidden');
+      errorMessageDiv.innerHTML = message;
+    }
+
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
 </body>
 </html>
