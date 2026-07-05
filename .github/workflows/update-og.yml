@@ -1,6 +1,7 @@
 name: Update OG Image
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: "0 20 * * *"
   push:
@@ -41,15 +42,21 @@ jobs:
           SCHOOL_LABEL: "천안업성고 2학년 9반"
         run: python scripts/generate_og.py
 
+      - name: Update og:image daily version
+        run: |
+          TODAY_KST=$(TZ=Asia/Seoul date +%Y%m%d)
+          sed -i -E "s#(<meta property=\"og:image\" content=\"https://0115seed-sketch.github.io/timetable/assets/og/today_timetable.png)(\?v=[0-9]{8})?(\")#\1?v=${TODAY_KST}\3#" index.html
+
       - name: Commit and push changes
         run: |
-          if [ -z "$(git status --porcelain -- assets/og/today_timetable.png)" ]; then
-            echo "No changes in OG image"
+          if [ -z "$(git status --porcelain -- assets/og/today_timetable.png index.html)" ]; then
+            echo "No changes in OG assets"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add assets/og/today_timetable.png
+          git add index.html
           git commit -m "chore: update daily OG image"
           git pull --rebase origin main
           git push origin HEAD:main
