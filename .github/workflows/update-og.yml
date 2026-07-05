@@ -45,7 +45,12 @@ jobs:
       - name: Update og:image daily version
         run: |
           TODAY_KST=$(TZ=Asia/Seoul date +%Y%m%d)
-          sed -i -E "s#(<meta property=\"og:image\" content=\"https://0115seed-sketch.github.io/timetable/assets/og/today_timetable.png)(\?v=[0-9]{8})?(\")#\1?v=${TODAY_KST}\3#" index.html
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${TODAY_KST}-${GITHUB_RUN_NUMBER}"
+          else
+            VERSION="${TODAY_KST}"
+          fi
+          sed -i -E "s#(<meta property=\"og:image\" content=\"https://0115seed-sketch.github.io/timetable/assets/og/today_timetable.png)(\?v=[^\"]*)?(\")#\1?v=${VERSION}\3#" index.html
 
       - name: Commit and push changes
         run: |
