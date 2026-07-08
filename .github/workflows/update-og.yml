@@ -32,6 +32,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Prepare OG version
+        run: |
+          TODAY_KST=$(TZ=Asia/Seoul date +%Y%m%d)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${TODAY_KST}-${GITHUB_RUN_NUMBER}"
+          else
+            VERSION="${TODAY_KST}"
+          fi
+          echo "TODAY_KST=${TODAY_KST}" >> "$GITHUB_ENV"
+          echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
+          echo "OG_FILE=today_timetable-${VERSION}.png" >> "$GITHUB_ENV"
+          echo "OG_URL=https://0115seed-sketch.github.io/timetable/assets/og/today_timetable-${VERSION}.png" >> "$GITHUB_ENV"
+
       - name: Generate OG image
         env:
           NICE_API_KEY: ${{ secrets.NICE_API_KEY }}
@@ -40,28 +53,25 @@ jobs:
           NEIS_GRADE: "2"
           NEIS_CLASS: "9"
           SCHOOL_LABEL: "천안업성고 2학년 9반"
-        run: python scripts/generate_og.py
+        run: OG_OUTPUT_PATH="assets/og/${OG_FILE}" python scripts/generate_og.py
 
-      - name: Update og:image daily version
+      - name: Update og:image URL
         run: |
-          TODAY_KST=$(TZ=Asia/Seoul date +%Y%m%d)
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            VERSION="${TODAY_KST}-${GITHUB_RUN_NUMBER}"
-          else
-            VERSION="${TODAY_KST}"
-          fi
-          sed -i -E "s#(<meta property=\"og:image\" content=\"https://0115seed-sketch.github.io/timetable/assets/og/today_timetable.png)(\?v=[^\"]*)?(\")#\1?v=${VERSION}\3#" index.html
+          sed -i -E "s#(<meta property=\"og:image\" content=\")[^\"]*(\")#\1${OG_URL}\2#" index.html
+
+      - name: Cleanup old versioned OG images
+        run: |
+          ls -1t assets/og/today_timetable-*.png 2>/dev/null | tail -n +15 | xargs -r rm -f
 
       - name: Commit and push changes
         run: |
-          if [ -z "$(git status --porcelain -- assets/og/today_timetable.png index.html)" ]; then
+          if [ -z "$(git status --porcelain -- assets/og index.html)" ]; then
             echo "No changes in OG assets"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add assets/og/today_timetable.png
-          git add index.html
+          git add assets/og index.html
           git commit -m "chore: update daily OG image"
           git pull --rebase origin main
           git push origin HEAD:main

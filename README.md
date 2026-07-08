@@ -46,8 +46,8 @@ window.__APP_CONFIG__ = {
 - 필수 Secret:
   - GitHub Repository Secret `NICE_API_KEY`
 
-워크플로는 `scripts/generate_og.py`를 실행해 `assets/og/today_timetable.png`를 갱신하고,
-`index.html`의 `og:image` URL에 KST 날짜 버전 쿼리(`?v=YYYYMMDD`)를 매일 반영해 자동 커밋합니다.
+워크플로는 `scripts/generate_og.py`를 실행해 날짜 버전 OG 이미지 파일을 생성하고,
+`index.html`의 `og:image` URL을 KST 날짜 버전 파일명(`today_timetable-YYYYMMDD.png`)으로 매일 교체해 자동 커밋합니다.
 
 ## 3) 로컬 테스트
 
